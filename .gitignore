@@ -65,3 +65,5 @@ bower_components
 aot/*
 dist/*
 yarn.lock
+
+__MACOSX*
