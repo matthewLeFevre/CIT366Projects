@@ -1,0 +1,10 @@
+.ml-contact-detail {
+  padding: 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ml-img-h50px {
+  max-height: 50px;
+}

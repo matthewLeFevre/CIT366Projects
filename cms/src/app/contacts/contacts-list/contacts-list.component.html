@@ -1,0 +1,14 @@
+
+
+<figure class="panel panel-default">
+  <div class="panel-heading clearfix">Contacts
+    <button class="btn btn-success pull-right">New Contact</button>
+  </div>
+  <div class="panel-body" *ngFor="let contact of contacts">
+    <h4 class="pull-right">{{ contact.name }}</h4>
+    <img class="img-responsive pull-left" 
+         style="max-height: 50px;" 
+         [src]= "contact.imgUrl"
+         alt="{{ contact.name }}">
+  </div>
+</figure>
