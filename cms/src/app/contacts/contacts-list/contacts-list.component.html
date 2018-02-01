@@ -6,5 +6,6 @@
   </div>
   <cms-contact-item 
     *ngFor="let contactEl of contacts" 
-    [contact]="contactEl"></cms-contact-item>
+    [contact]="contactEl"
+    (contactSelected)="onContactSelected(contactEl)"></cms-contact-item>
 </figure>
