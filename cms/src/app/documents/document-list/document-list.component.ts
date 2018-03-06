@@ -14,10 +14,11 @@ export class DocumentListComponent implements OnInit {
   }
 
   ngOnInit() {
-  }
-
-  onSelectedDocument (document: Document) {
-    this.documentService.documentSelectedEvent.emit(document);
+    this.documentService.documentChangeEvent.subscribe(
+      (documents: Document[]) => {
+        this.documents = documents;
+      }
+    )
   }
 
 }
