@@ -49,7 +49,7 @@ export class ContactService {
      }
 
      this.maxContactId++;
-     newContact.id = this.maxContactId;
+     newContact.id = this.maxContactId + "";
      this.contacts.push(newContact);
      let contactListClone = this.contacts.slice();
      this.contactListChangedEvent.next(contactListClone);

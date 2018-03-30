@@ -2,6 +2,7 @@ import { BrowserModule }  from '@angular/platform-browser';
 import { NgModule }       from '@angular/core';
 import { FormsModule }    from '@angular/forms';
 import { HttpModule }     from '@angular/http';
+import { DndModule }      from 'ng2-dnd';
 
 import { AppComponent }             from './app.component';
 import { HeaderComponent }          from './header.component';
@@ -26,6 +27,7 @@ import { MessageService }           from './messages/message.service';
 import { ContactService }           from './contacts/contact.service';
 import { DocumentService }          from './documents/document.service';
 import { AppRoutingModule }         from './app-routing.module';
+import { ContactsFilterPipe } from './contacts/contacts-filter.pipe';
 
 @NgModule({
   declarations: [
@@ -46,12 +48,14 @@ import { AppRoutingModule }         from './app-routing.module';
     DropdownDirective,
     DocumentsViewComponent,
     DocumentEditComponent,
-    ContactEditComponent
+    ContactEditComponent,
+    ContactsFilterPipe
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule,
+    DndModule.forRoot(),
     AppRoutingModule
   ],
   providers: [ContactService, MessageService, DocumentService, WinRefService],

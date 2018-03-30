@@ -36,7 +36,8 @@ export class DocumentEditComponent implements OnInit {
         }
 
         this.editMode = true;
-        this.document = Object.assign({}, this.document);
+        this.document = Object.assign({}, this.originalDocument);
+        // this.document = JSON.parse(JSON.stringify(this.originalDocument));
       }
     );
   }

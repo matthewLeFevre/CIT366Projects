@@ -1,5 +1,7 @@
 import { Injectable, EventEmitter, Input, Output } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
+import { Headers, Http, Response } from '@angular/http';
+import 'rxjs/Rx';
 
 import { Document } from './document.model';
 import { MOCKDOCUMENTS } from './MOCKDOCUMENTS';
@@ -10,9 +12,10 @@ export class DocumentService {
   documentChangeEvent: EventEmitter<Document[]> = new EventEmitter();
   documentListChangedEvent: Subject<Document[]> = new Subject();
   maxDocumentId: any;
-  constructor() {
-    this.documents = MOCKDOCUMENTS;
-    this.maxDocumentId = this.getMaxId();
+  constructor(private http: Http) {
+    // this.documents = MOCKDOCUMENTS;
+    // this.maxDocumentId = this.getMaxId();
+    this.initDocuments();
    }
    getDocuments() {
     return this.documents.slice();
@@ -47,7 +50,8 @@ export class DocumentService {
     }
 
     this.maxDocumentId++;
-    newDocument.id = this.maxDocumentId;
+    newDocument.id = this.maxDocumentId + "";
+    console.log(newDocument);
     this.documents.push(newDocument);
     let documentListClone = this.documents.slice();
     console.log(documentListClone);
@@ -81,6 +85,30 @@ export class DocumentService {
     }
 
     return maxId;
+  }
+
+  initDocuments() {
+  this.http.get('https://cms-cit360.firebaseio.com/documents.json')
+      .map(
+        (response: Response) =>{
+          const documents: Document[] = response.json();
+          return documents;
+        }
+      ) .subscribe(
+        (documents : Document[]) => {
+          this.documents = documents;
+          this.maxDocumentId = this.getMaxId();
+          this.documentListChangedEvent.next(this.documents.slice());
+        }
+      );
+  }
+
+  storeDocuments( documents: Document[]) {
+    let documentsClone = JSON.stringify(documents);
+    const headers= new Headers({'Content-Type': 'applicaiton/json'});
+    return this.http.put('https://cms-cit360.firebaseio.com/documents.json', 
+      documentsClone, 
+      {headers: headers});
   }
 
 }

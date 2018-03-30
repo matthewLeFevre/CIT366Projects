@@ -11,6 +11,7 @@ import { ContactService } from '../contact.service';
 export class ContactsListComponent implements OnInit {
   subscription: Subscription;
   contacts: Contact[];
+  term: string;
   constructor(private contactService: ContactService) { }
 
   ngOnInit() {
@@ -29,5 +30,9 @@ export class ContactsListComponent implements OnInit {
 
   onContactSelected (contact: Contact) {
     this.contactService.contactSelectedEvent.emit(contact);
+  }
+  
+  onKeyPress(value: string) {
+    this.term = value;
   }
 }
