@@ -39,8 +39,8 @@ export class DocumentService {
     }
 
     this.documents.splice(pos, 1);
-    let documentsListClone = this.documents.slice();
-    this.documentListChangedEvent.next(documentsListClone);
+    this.documentListChangedEvent.next(this.documents.slice());
+    this.storeDocuments(this.documents.slice());
    }
 
   addDocument(newDocument: Document) {
@@ -55,7 +55,8 @@ export class DocumentService {
     this.documents.push(newDocument);
     let documentListClone = this.documents.slice();
     console.log(documentListClone);
-    this.documentListChangedEvent.next(documentListClone);
+    // this.documentListChangedEvent.next(documentListClone);
+    this.storeDocuments(documentListClone);
   }
 
   updateDocument(originalDocument: Document,
@@ -71,8 +72,8 @@ export class DocumentService {
 
     newDocument.id = originalDocument.id;
     this.documents[pos] = newDocument;
-    let documentListClone = this.documents.slice();
-    this.documentListChangedEvent.next(documentListClone);
+    this.documentListChangedEvent.next(this.documents.slice());
+    this.storeDocuments(this.documents.slice());
   }
 
   getMaxId() {
@@ -92,6 +93,7 @@ export class DocumentService {
       .map(
         (response: Response) =>{
           const documents: Document[] = response.json();
+          console.log(response);
           return documents;
         }
       ) .subscribe(
@@ -104,11 +106,11 @@ export class DocumentService {
   }
 
   storeDocuments( documents: Document[]) {
+    console.log(documents);
     let documentsClone = JSON.stringify(documents);
-    const headers= new Headers({'Content-Type': 'applicaiton/json'});
+    const headers= new Headers({'Content-Type': 'application/json'});
     return this.http.put('https://cms-cit360.firebaseio.com/documents.json', 
-      documentsClone, 
-      {headers: headers});
+      documentsClone, {headers: headers});
   }
 
 }

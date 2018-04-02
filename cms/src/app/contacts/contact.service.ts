@@ -1,5 +1,7 @@
 import { Injectable, EventEmitter, Input, Output } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
+import { Headers, Http, Response} from '@angular/http';
+import 'rxjs/Rx';
 
 import { Contact } from './contacts.model';
 import {MOCKCONTACTS} from './MOCKCONTACTS';
@@ -10,9 +12,8 @@ export class ContactService {
   contactsChangeEvent: EventEmitter<Contact[]> = new EventEmitter();
   contactListChangedEvent: Subject<Contact[]> = new Subject();
   maxContactId: any;
-  constructor() {
-    this.contacts = MOCKCONTACTS;
-    this.maxContactId = this.getMaxId();
+  constructor( private http: Http) {
+    this.initContacts();
    }
 
    getContacts() {
@@ -40,7 +41,8 @@ export class ContactService {
 
      this.contacts.splice(pos, 1);
      let contactListClone = this.contacts.slice();
-     this.contactListChangedEvent.next(contactListClone);
+    //  this.contactListChangedEvent.next(contactListClone);
+    this.storeContacts(contactListClone);
    }
 
    addContact( newContact: Contact){
@@ -52,7 +54,8 @@ export class ContactService {
      newContact.id = this.maxContactId + "";
      this.contacts.push(newContact);
      let contactListClone = this.contacts.slice();
-     this.contactListChangedEvent.next(contactListClone);
+    //  this.contactListChangedEvent.next(contactListClone);
+     this.storeContacts(contactListClone);
    }
 
    updateContact (originalContact: Contact,
@@ -68,7 +71,8 @@ export class ContactService {
       newContact.id = originalContact.id;
       this.contacts[pos] = newContact;
       let contactListClone = this.contacts.slice();
-      this.contactListChangedEvent.next(contactListClone);
+      // this.contactListChangedEvent.next(contactListClone);
+      this.storeContacts(contactListClone);
    }
 
    getMaxId() {
@@ -81,5 +85,29 @@ export class ContactService {
     }
 
     return maxId;
+  }
+
+  initContacts() {
+    this.http.get('https://cms-cit360.firebaseio.com/contacts.json')
+      .map(
+        (respons: Response) => {
+          const contacts: Contact[] = respons.json();
+          return contacts;
+        }
+      ) . subscribe (
+        (contacts: Contact[]) => {
+          this.contacts = contacts;
+          this.maxContactId = this.getMaxId();
+          this.contactListChangedEvent.next(this.contacts.slice());
+        }
+      )
+  }
+
+  storeContacts( contacts: Contact[]) {
+    let contactsClone = JSON.stringify(contacts);
+    const headers = new Headers({'Content-Type': 'application/json'});
+    return this.http.put('https://cms-cit360.firebaseio.com/contacts.json',
+      contactsClone,
+      {headers: headers});
   }
 }
