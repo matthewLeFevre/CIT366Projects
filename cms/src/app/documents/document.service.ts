@@ -41,7 +41,7 @@ export class DocumentService {
       ).subscribe(
         (documents: Document[]) => {
           this.documents = documents;
-          this.documentChangeEvent.next(this.documents.slice())
+          this.documentListChangedEvent.next(this.documents.slice())
         }
       )
    }
@@ -65,7 +65,7 @@ export class DocumentService {
     ).subscribe(
       (documents: Document[]) => {
         this.documents = documents;
-        this.documentChangeEvent.next(this.documents.slice());
+        this.documentListChangedEvent.next(this.documents.slice());
       }
     )
   }
@@ -94,7 +94,7 @@ export class DocumentService {
     ).subscribe(
       (documents: Document[]) => {
         this.documents = documents;
-        this.documentChangeEvent.next(this.documents);
+        this.documentListChangedEvent.next(this.documents);
       }
     )
   }

@@ -34,10 +34,11 @@ function postDocuments(req, res){
         error: err
       });
     }
-
+    var documents = getDocuments(req, res);
+    console.log(documents);
     res.status(201).json({
       message: 'saved document',
-      obj: result
+      obj: documents,
     });
   });
 }
