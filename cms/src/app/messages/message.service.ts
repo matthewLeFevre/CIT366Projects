@@ -12,7 +12,7 @@ export class MessageService {
   maxMessageId: number = this.generateId(66);
   messageChangeEvent: EventEmitter<Message[]> = new EventEmitter();
   constructor(private http: Http) {
-    this.messages = MOCKMESSAGES;
+    this.initMessages();
    }
   generateId (length: number) {
     let password = "";
@@ -39,11 +39,11 @@ export class MessageService {
     this.messageChangeEvent.emit(this.messages.slice());
   }
 
-  initDocuments() {
-    this.http.get('https://cms-cit360.firebaseio.com/documents.json')
+  initMessages() {
+    this.http.get('http://localhost:3000/messages')
         .map(
           (response: Response) =>{
-            const messages: Message[] = response.json();
+            const messages: Message[] = response.json().obj;
             console.log(response);
             return messages;
           }
@@ -56,11 +56,11 @@ export class MessageService {
         );
     }
   
-    storeDocuments( documents: Document[]) {
-      console.log(documents);
-      let documentsClone = JSON.stringify(documents);
-      const headers= new Headers({'Content-Type': 'application/json'});
-      return this.http.put('https://cms-cit360.firebaseio.com/documents.json', 
-        documentsClone, {headers: headers});
-    }  
+    // storeDocuments( documents: Document[]) {
+    //   console.log(documents);
+    //   let documentsClone = JSON.stringify(documents);
+    //   const headers= new Headers({'Content-Type': 'application/json'});
+    //   return this.http.put('https://cms-cit360.firebaseio.com/documents.json', 
+    //     documentsClone, {headers: headers});
+    // }  
  }

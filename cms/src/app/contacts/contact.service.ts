@@ -1,6 +1,6 @@
 import { Injectable, EventEmitter, Input, Output } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
-import { Headers, Http, Response} from '@angular/http';
+import { Headers, Http, Response, Jsonp} from '@angular/http';
 import 'rxjs/Rx';
 
 import { Contact } from './contacts.model';
@@ -17,7 +17,7 @@ export class ContactService {
    }
 
    getContacts() {
-     return this.contacts.slice();
+     return this.contacts;
    }
 
    getContact(id: string) {
@@ -30,32 +30,44 @@ export class ContactService {
    }
 
    deleteContact(contact: Contact) {
+    if (contact === null) {
+      return;
+    }
+
+    this.http.delete('http://localhost:3000/contact/' + contact.id)
+      .map(
+        (response: Response) => {
+          return response.json().obj;
+        }
+      ).subscribe(
+        (contacts: Contact[]) => {
+          this.contacts = contacts;
+          this.contactsChangeEvent.next(this.contacts);
+        }
+      )
+   }
+
+   addContact( contact: Contact){
      if (contact === null) {
        return;
      }
 
-     const pos = this.contacts.indexOf(contact);
-     if (pos < 0) {
-       return;
-     }
+     const headers = new Headers({ 'content-Type': 'application/json'});
+     contact.id="";
+     const strContact = JSON.stringify(contact);
 
-     this.contacts.splice(pos, 1);
-     let contactListClone = this.contacts.slice();
-    //  this.contactListChangedEvent.next(contactListClone);
-    this.storeContacts(contactListClone);
-   }
+     this.http.post('http://localhost:3000/contact', strContact, {headers: headers})
+      .map(
+        (response: Response) => {
+          return response.json().obj;
+        }
+      ).subscribe(
+        (contacts: Contact[]) => {
+          this.contacts = contacts;
+          this.contactsChangeEvent.next(this.contacts);
+        }
+      )
 
-   addContact( newContact: Contact){
-     if (newContact === null) {
-       return;
-     }
-
-     this.maxContactId++;
-     newContact.id = this.maxContactId + "";
-     this.contacts.push(newContact);
-     let contactListClone = this.contacts.slice();
-    //  this.contactListChangedEvent.next(contactListClone);
-     this.storeContacts(contactListClone);
    }
 
    updateContact (originalContact: Contact,
@@ -64,15 +76,26 @@ export class ContactService {
         return;
       }
 
-      let pos = this.contacts.indexOf(originalContact);
+      const pos = this.contacts.indexOf(originalContact);
       if(pos < 0) {
         return;
       }
-      newContact.id = originalContact.id;
-      this.contacts[pos] = newContact;
-      let contactListClone = this.contacts.slice();
-      // this.contactListChangedEvent.next(contactListClone);
-      this.storeContacts(contactListClone);
+      const headers = new Headers({ 'content-Type': 'application/json'});
+
+     
+     const strContact = JSON.stringify(newContact);
+
+     this.http.patch('http://localhost:3000/contact/' + originalContact.id, strContact, {headers: headers})
+      .map(
+        (response: Response) => {
+          return response.json().obj;
+        }
+      ).subscribe(
+        (contacts: Contact[]) => {
+          this.contacts = contacts;
+          this.contactsChangeEvent.next(this.contacts);
+        }
+      )
    }
 
    getMaxId() {
@@ -88,10 +111,11 @@ export class ContactService {
   }
 
   initContacts() {
-    this.http.get('https://cms-cit360.firebaseio.com/contacts.json')
+    this.http.get('http://localhost:3000/contact')
       .map(
         (respons: Response) => {
-          const contacts: Contact[] = respons.json();
+          const contacts: Contact[] = respons.json().obj;
+          console.log(contacts);
           return contacts;
         }
       ) . subscribe (
@@ -103,8 +127,8 @@ export class ContactService {
       )
   }
 
-  storeContacts( contacts: Contact[]) {
-    let contactsClone = JSON.stringify(contacts);
+  storeContacts() {
+    let contactsClone = JSON.stringify(this.contacts);
     const headers = new Headers({'Content-Type': 'application/json'});
     return this.http.put('https://cms-cit360.firebaseio.com/contacts.json',
       contactsClone,

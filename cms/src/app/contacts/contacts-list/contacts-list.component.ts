@@ -15,13 +15,20 @@ export class ContactsListComponent implements OnInit {
   constructor(private contactService: ContactService) { }
 
   ngOnInit() {
-    this.contacts = this.contactService.getContacts();
+
+    this.contactService.contactsChangeEvent.subscribe(
+      (contacts: Contact[]) => {
+        this.contacts = contacts;
+      }
+    )
+    // this.contacts = this.contactService.Contacts();
     this.subscription = this.contactService.contactListChangedEvent.subscribe(
       (contactList: Contact[]) => {
         this.contacts = contactList;
+        console.log(this.contacts);
       }
     );
-  
+   
   }
 
   ngOnDestroy () {

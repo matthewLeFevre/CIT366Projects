@@ -20,7 +20,7 @@
   </div>
 
   <cms-contact-item 
-    *ngFor="let contactEl of contacts | contactsFilter:contacts:this.term" 
+    *ngFor="let contactEl of contacts" 
     [contact]="contactEl"
     (contactSelected)="onContactSelected(contactEl)"
     dnd-draggable

@@ -39,7 +39,7 @@ export class ContactEditComponent implements OnInit {
 
         this.editMode = true;
         this.contact = Object.assign({}, this.originalContact);
-        if(this.contact.group !== null) {
+        if(this.contact.group !== null && this.contact.group !== undefined) {
           this.groupContacts = this.contact.group.slice();
         }
       }

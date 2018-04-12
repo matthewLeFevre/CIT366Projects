@@ -18,7 +18,7 @@ export class DocumentService {
     this.initDocuments();
    }
    getDocuments() {
-    return this.documents.slice();
+    return this.documents;
    }
    getDocument (id: string) {
     for (let d of this.documents) {
@@ -33,30 +33,41 @@ export class DocumentService {
       return;
     }
 
-    const pos = this.documents.indexOf(document);
-    if (pos < 0) {
-      return;
-    }
-
-    this.documents.splice(pos, 1);
-    this.documentListChangedEvent.next(this.documents.slice());
-    this.storeDocuments(this.documents.slice());
+    this.http.delete('http://localhost:3000/documents/' + document.id)
+      .map(
+        (response: Response) => {
+          return response.json().obj;
+        }
+      ).subscribe(
+        (documents: Document[]) => {
+          this.documents = documents;
+          this.documentChangeEvent.next(this.documents.slice())
+        }
+      )
    }
 
-  addDocument(newDocument: Document) {
-    if (newDocument === null) {
-      console.log("was null");
+  addDocument(document: Document) {
+    if (!document) {
       return;
     }
 
-    this.maxDocumentId++;
-    newDocument.id = this.maxDocumentId + "";
-    console.log(newDocument);
-    this.documents.push(newDocument);
-    let documentListClone = this.documents.slice();
-    console.log(documentListClone);
-    // this.documentListChangedEvent.next(documentListClone);
-    this.storeDocuments(documentListClone);
+    const headers = new Headers({
+      'Content-Type': 'application/json'
+    });
+
+    document.id="";
+    const strDocument = JSON.stringify(document);
+
+    this.http.post('http://localhost:3000/documents', strDocument, {headers: headers}).map (
+      (response: Response) => {
+        return response.json().obj;
+      }
+    ).subscribe(
+      (documents: Document[]) => {
+        this.documents = documents;
+        this.documentChangeEvent.next(this.documents.slice());
+      }
+    )
   }
 
   updateDocument(originalDocument: Document,
@@ -65,15 +76,27 @@ export class DocumentService {
       return;
     }
 
-    let pos = this.documents.indexOf(originalDocument);
+    const pos = this.documents.indexOf(originalDocument);
     if(pos < 0 ) {
       return;
     }
 
-    newDocument.id = originalDocument.id;
-    this.documents[pos] = newDocument;
-    this.documentListChangedEvent.next(this.documents.slice());
-    this.storeDocuments(this.documents.slice());
+    const headers = new Headers({
+      'Content-Type': 'application/json'
+    });
+
+    const strDocument = JSON.stringify(newDocument);
+
+    this.http.patch('http://localhost:3000/documents/' + originalDocument.id, strDocument, {headers: headers}).map (
+      (response: Response) => {
+        return response.json().obj;
+      }
+    ).subscribe(
+      (documents: Document[]) => {
+        this.documents = documents;
+        this.documentChangeEvent.next(this.documents);
+      }
+    )
   }
 
   getMaxId() {
@@ -89,18 +112,19 @@ export class DocumentService {
   }
 
   initDocuments() {
-  this.http.get('https://cms-cit360.firebaseio.com/documents.json')
+  this.http.get('http://localhost:3000/documents')
       .map(
         (response: Response) =>{
-          const documents: Document[] = response.json();
+          const documents: Document[] = response.json().obj;
           console.log(response);
           return documents;
         }
       ) .subscribe(
         (documents : Document[]) => {
           this.documents = documents;
-          this.maxDocumentId = this.getMaxId();
-          this.documentListChangedEvent.next(this.documents.slice());
+          console.log("===================================");
+          console.log(this.documents);
+          this.documentListChangedEvent.next(this.documents);
         }
       );
   }
